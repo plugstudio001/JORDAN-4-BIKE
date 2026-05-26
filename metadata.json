@@ -1,0 +1,6 @@
+{
+  "name": "PulseGrid AI",
+  "description": "Futuristic AI-powered business management platform with glassmorphism UI, real-time analytics, smart inventory, and AI-driven business insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Inventory product details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "stockQuantity": { "type": "integer" },
+        "lowStockThreshold": { "type": "integer" },
+        "category": { "type": "string" },
+        "barcode": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "stockQuantity"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Sales transaction record",
+      "type": "object",
+      "properties": {
+        "customerId": { "type": "string" },
+        "employeeId": { "type": "string" },
+        "items": { "type": "array" },
+        "totalAmount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string", "enum": ["completed", "pending", "refunded"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["items", "totalAmount", "paymentMethod", "status", "timestamp"]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "Business employee profile",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "salary": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "inactive"] }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Business customer profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "loyaltyPoints": { "type": "integer" }
+      },
+      "required": ["name", "email"]
+    },
+    "Campaign": {
+      "title": "Campaign",
+      "description": "Marketing campaign details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["sms", "email", "social"] },
+        "content": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "active", "completed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "type", "content", "status"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Collection of products in inventory"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Collection of sales transactions"
+    },
+    "/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "Collection of employee profiles"
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Collection of customer profiles"
+    },
+    "/campaigns/{campaignId}": {
+      "schema": "Campaign",
+      "description": "Collection of marketing campaigns"
+    }
+  }
+}
