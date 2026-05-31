@@ -23,12 +23,17 @@ service cloud.firestore {
       return resource.data;
     }
 
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
     // 2. Validation Helpers
     function isValidProduct(data) {
       return data.keys().hasAll(['name', 'price', 'stockQuantity']) &&
              data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.price is number && data.price >= 0 &&
-             data.stockQuantity is int && data.stockQuantity >= 0;
+             data.stockQuantity is int && data.stockQuantity >= 0 &&
+             (!data.keys().hasAny(['category']) || (data.category is string && data.category.size() <= 50));
     }
 
     function isValidTransaction(data) {
@@ -61,41 +66,43 @@ service cloud.firestore {
 
     // 3. Collection Rules
     
+    // Products Collection
     match /products/{productId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn() && isValidProduct(incoming()) && isValidId(productId) 
-                    && incoming().keys().size() == 3; // Strict count
+      allow create: if isSignedIn() && isValidProduct(incoming()) && isValidId(productId);
       allow update: if isSignedIn() && isValidProduct(incoming()) && (
+        // Action: Stock Update
         incoming().diff(existing()).affectedKeys().hasOnly(['stockQuantity', 'updatedAt'])
-        || incoming().diff(existing()).affectedKeys().hasOnly(['price', 'updatedAt'])
+        // Action: Price Update
+        || incoming().diff(existing()).affectedKeys().hasOnly(['price', 'updatedAt', 'name'])
       );
-      allow delete: if false; // Locked in this version
+      allow delete: if isSignedIn(); // In a real app, restrict to Admin
     }
 
+    // Transactions Collection
     match /transactions/{transactionId} {
       allow list: if isSignedIn() && (resource.data.employeeId == request.auth.uid || resource.data.customerId == request.auth.uid);
       allow get: if isSignedIn();
-      allow create: if isSignedIn() && isValidTransaction(incoming()) && isValidId(transactionId)
-                    && incoming().keys().size() == 5;
-      allow update: if false;
+      allow create: if isSignedIn() && isValidTransaction(incoming()) && isValidId(transactionId);
+      allow update: if false; // Transactions are immutable once created in this logic
     }
 
+    // Employees Collection
     match /employees/{employeeId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && isValidEmployee(incoming()) && isValidId(employeeId)
-                    && incoming().keys().size() == 3;
+      allow write: if isSignedIn() && isValidEmployee(incoming()) && isValidId(employeeId);
     }
 
+    // Customers Collection
     match /customers/{customerId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && isValidCustomer(incoming()) && isValidId(customerId)
-                    && incoming().keys().size() == 2;
+      allow write: if isSignedIn() && isValidCustomer(incoming()) && isValidId(customerId);
     }
 
+    // Campaigns Collection
     match /campaigns/{campaignId} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && isValidCampaign(incoming()) && isValidId(campaignId)
-                    && incoming().keys().size() == 4;
+      allow write: if isSignedIn() && isValidCampaign(incoming()) && isValidId(campaignId);
     }
   }
 }

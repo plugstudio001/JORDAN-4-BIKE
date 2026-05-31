@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { GlassCard } from './GlassCard';
+import { GlowCard } from './GlowCard';
 import { 
   Search, 
   Plus, 
   Filter, 
-  MoreVertical, 
   Edit, 
   Trash2, 
-  Upload,
   AlertTriangle,
   History,
-  Zap
+  Zap,
+  Box,
+  Cpu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
@@ -63,97 +63,99 @@ export const Inventory: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       {/* Search and Filter Bar */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-10">
         <div className="relative w-full md:w-96 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-cyan-400 transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search inventory matrix..."
-            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all backdrop-blur-xl"
-          />
+          <GlowCard className="p-0" hoverEffect={false}>
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-cyan-400 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search inventory matrix..."
+              className="w-full bg-transparent py-4 pl-12 pr-4 text-white focus:outline-none placeholder:text-white/10 text-sm font-medium"
+            />
+          </GlowCard>
         </div>
         
-        <div className="flex gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all font-bold text-xs uppercase tracking-widest text-gray-400">
-            <Filter className="w-4 h-4" /> Filter
+        <div className="flex gap-4 w-full md:w-auto">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-[20px] hover:bg-white/10 transition-all font-bold text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white">
+            <Filter className="w-4 h-4" /> Filter_Load
           </button>
-          <button onClick={() => setIsAddModalOpen(true)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-white text-black rounded-2xl hover:bg-cyan-400 hover:text-white transition-all font-bold shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+          <button onClick={() => setIsAddModalOpen(true)} className="flex-1 md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-white text-black rounded-[20px] hover:bg-cyan-400 hover:text-white transition-all font-bold text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(34,211,238,0.2)] active:scale-95 transform">
             <Plus className="w-5 h-5" /> Provision Node
           </button>
         </div>
       </div>
 
       {/* Inventory List */}
-      <GlassCard className="!p-0 overflow-hidden border-white/5">
-        <div className="overflow-x-auto">
+      <GlowCard className="!p-0 border-white/5 overflow-hidden" hoverEffect={false}>
+        <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-white/5 text-gray-500 text-[10px] uppercase tracking-[0.2em] font-bold">
-                <th className="px-6 py-5 font-medium">Identity</th>
-                <th className="px-6 py-5 font-medium text-center">Category</th>
-                <th className="px-6 py-5 font-medium text-center">Velocity</th>
-                <th className="px-6 py-5 font-medium text-right">Value</th>
-                <th className="px-6 py-5 font-medium text-center">Status</th>
-                <th className="px-6 py-5 font-medium text-right pr-10">Actions</th>
+              <tr className="border-b border-white/5 text-gray-600 text-[10px] uppercase tracking-[0.3em] font-bold bg-white/[0.01]">
+                <th className="px-8 py-6 font-bold">Identity_Vector</th>
+                <th className="px-8 py-6 font-bold text-center">Category</th>
+                <th className="px-8 py-6 font-bold text-center">Velocity</th>
+                <th className="px-8 py-6 font-bold text-right">Value</th>
+                <th className="px-8 py-6 font-bold text-center">Status</th>
+                <th className="px-8 py-6 font-bold text-right pr-12">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/[0.03]">
               {products.map((prod) => (
                 <motion.tr 
                   layout
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   key={prod.id} 
-                  className="hover:bg-white/[0.01] transition-colors group"
+                  className="hover:bg-white/[0.02] transition-colors group"
                 >
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-cyan-500/20 transition-all overflow-hidden bg-cover bg-center" style={prod.imageUrl ? { backgroundImage: `url(${prod.imageUrl})` } : undefined}>
-                        {!prod.imageUrl && <Zap className="w-5 h-5 text-white/5" />}
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-cyan-400/20 transition-all overflow-hidden bg-cover bg-center" style={prod.imageUrl ? { backgroundImage: `url(${prod.imageUrl})` } : undefined}>
+                        {!prod.imageUrl && <Box className="w-6 h-6 text-white/5 group-hover:text-cyan-400/20 transition-colors" />}
                       </div>
                       <div>
-                        <p className="font-bold text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight">{prod.name}</p>
-                        <p className="text-[10px] text-gray-600 mt-0.5 font-mono">#{prod.barcode || 'NO_SKU'}</p>
+                        <p className="font-bold text-white group-hover:text-cyan-400 transition-colors uppercase tracking-tight text-sm">{prod.name}</p>
+                        <p className="text-[10px] text-gray-700 mt-0.5 font-mono uppercase font-bold tracking-widest leading-none">#{prod.barcode || 'NO_SKU_INIT'}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-center">
-                    <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[9px] font-bold uppercase tracking-widest text-gray-400">{prod.category || 'GENERAL'}</span>
+                  <td className="px-8 py-6 text-center">
+                    <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">{prod.category || 'GENERAL'}</span>
                   </td>
-                  <td className="px-6 py-5 text-center">
+                  <td className="px-8 py-6 text-center">
                     <div className="flex flex-col items-center">
                       <span className={cn(
-                        "font-mono font-bold text-lg",
-                        prod.stockQuantity <= prod.lowStockThreshold ? "text-red-400" : "text-white/80"
+                        "font-mono font-bold text-xl tracking-tighter",
+                        prod.stockQuantity <= prod.lowStockThreshold ? "text-red-500" : "text-white/80"
                       )}>{prod.stockQuantity}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-right font-mono text-cyan-400 font-bold tracking-tighter">
+                  <td className="px-8 py-6 text-right font-mono text-cyan-400 font-bold tracking-tighter text-lg">
                     ${prod.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-8 py-6">
                     <div className="flex justify-center">
                       {prod.stockQuantity <= prod.lowStockThreshold ? (
-                        <div className="flex items-center gap-1.5 text-red-400 px-3 py-1 bg-red-400/5 border border-red-400/10 rounded-full">
+                        <div className="flex items-center gap-2 text-red-500 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-xl">
                           <AlertTriangle className="w-3 h-3" />
-                          <span className="text-[9px] uppercase font-bold tracking-widest">Critical</span>
+                          <span className="text-[9px] uppercase font-bold tracking-widest">CRITICAL_STK</span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-green-400 px-3 py-1 bg-green-400/5 border border-green-400/10 rounded-full">
-                          <div className="w-1.5 h-1.5 rounded-full bg-current shadow-[0_0_8px_currentColor]" />
-                          <span className="text-[9px] uppercase font-bold tracking-widest">Optimal</span>
+                        <div className="flex items-center gap-2 text-green-400 px-3 py-1.5 bg-green-400/10 border border-green-400/20 rounded-xl">
+                          <div className="w-1.5 h-1.5 rounded-full bg-current shadow-[0_0_10px_currentColor] animate-pulse" />
+                          <span className="text-[9px] uppercase font-bold tracking-widest">STK_NOMINAL</span>
                         </div>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-right pr-10">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white/20 hover:text-white">
+                  <td className="px-8 py-6 text-right pr-12">
+                    <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                      <button className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-white/40 hover:text-white">
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-white/20 hover:text-red-400">
+                      <button className="p-2.5 bg-white/5 hover:bg-red-500/10 border border-white/10 rounded-xl transition-all text-white/40 hover:text-red-500">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -162,11 +164,13 @@ export const Inventory: React.FC = () => {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-20 text-center">
-                    <div className="flex flex-col items-center opacity-20">
-                      <History className="w-16 h-16 mb-4" />
-                      <p className="text-xl">Your matrix is empty</p>
-                      <p className="text-sm mt-2">Initialize inventory to see data points</p>
+                  <td colSpan={6} className="px-8 py-32 text-center">
+                    <div className="flex flex-col items-center">
+                      <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 opacity-20">
+                         <History className="w-10 h-10" />
+                      </div>
+                      <p className="text-xl font-bold text-gray-700 uppercase tracking-widest">Inventory Matrix Empty</p>
+                      <p className="text-[10px] text-gray-800 uppercase tracking-[0.4em] font-bold mt-2">Provision nodes to populate system</p>
                     </div>
                   </td>
                 </tr>
@@ -174,7 +178,7 @@ export const Inventory: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </GlassCard>
+      </GlowCard>
 
       {/* Add Product Modal */}
       <AnimatePresence>
@@ -185,87 +189,94 @@ export const Inventory: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsAddModalOpen(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
             />
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]"
-            >
-              <div className="p-8 space-y-6">
+            <GlowCard className="relative w-full max-w-2xl p-10 border-white/10 overflow-hidden" hoverEffect={false}>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none" />
+              <div className="relative z-10 space-y-8">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-bold">Initialize Component</h3>
-                  <button onClick={() => setIsAddModalOpen(false)} className="text-white/20 hover:text-white underline text-sm">Cancel</button>
+                  <div>
+                    <h3 className="text-3xl font-bold tracking-tight">Provision Node</h3>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">Initialize New Component Identity</p>
+                  </div>
+                  <button onClick={() => setIsAddModalOpen(false)} className="text-white/20 hover:text-white transition-colors p-2"><X className="w-6 h-6" /></button>
                 </div>
                 
-                <form onSubmit={handleAddProduct} className="grid grid-cols-2 gap-6">
-                  <div className="col-span-2 space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-white/40 ml-2">Product Name</label>
+                <form onSubmit={handleAddProduct} className="grid grid-cols-2 gap-6 pt-4">
+                  <div className="col-span-2 space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Identity_Name</label>
                     <input 
                       required
                       value={newProduct.name}
                       onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 ring-blue-500/50 outline-none" 
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-white focus:ring-1 ring-cyan-500/50 outline-none transition-all placeholder:text-white/10" 
+                      placeholder="Enter component name..."
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-white/40 ml-2">Category</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Category_Node</label>
                     <input 
                       value={newProduct.category}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 ring-blue-500/50 outline-none" 
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-white focus:ring-1 ring-cyan-500/50 outline-none transition-all" 
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-white/40 ml-2">Price ($)</label>
-                    <input 
-                      required
-                      type="number" step="0.01"
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 ring-blue-500/50 outline-none font-mono" 
-                    />
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Value_Credit</label>
+                    <div className="relative">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 font-mono italic">$</span>
+                        <input 
+                        required
+                        type="number" step="0.01"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 pl-10 pr-5 text-white focus:ring-1 ring-cyan-500/50 outline-none font-mono" 
+                        />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-white/40 ml-2">Initial Quantity</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Initial_Velocity</label>
                     <input 
                       required
                       type="number"
                       value={newProduct.stockQuantity}
                       onChange={(e) => setNewProduct({...newProduct, stockQuantity: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 ring-blue-500/50 outline-none font-mono" 
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-white focus:ring-1 ring-cyan-500/50 outline-none font-mono" 
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-white/40 ml-2">Low Stock Mark</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Threshold_Margin</label>
                     <input 
                       required
                       type="number"
                       value={newProduct.lowStockThreshold}
                       onChange={(e) => setNewProduct({...newProduct, lowStockThreshold: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 ring-blue-500/50 outline-none font-mono" 
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-white focus:ring-1 ring-cyan-500/50 outline-none font-mono" 
                     />
                   </div>
-                  <div className="col-span-2 space-y-2">
-                    <label className="text-xs uppercase tracking-widest text-white/40 ml-2">Barcode / UPC</label>
+                  <div className="col-span-2 space-y-3">
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold ml-1">Barcode_Pulse_SKU</label>
                     <input 
                       value={newProduct.barcode}
                       onChange={(e) => setNewProduct({...newProduct, barcode: e.target.value})}
-                      placeholder="SCANNER_READY"
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 focus:ring-2 ring-blue-500/50 outline-none font-mono placeholder:text-white/10" 
+                      placeholder="SCAN_PROTOCOL_READY"
+                      className="w-full bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-white focus:ring-1 ring-cyan-500/50 outline-none font-mono placeholder:text-white/10" 
                     />
                   </div>
                   
-                  <button type="submit" className="col-span-2 bg-gradient-to-r from-blue-600 to-purple-600 p-5 rounded-2xl font-bold text-lg hover:brightness-110 active:scale-[0.98] transition-all mt-4">
+                  <button type="submit" className="col-span-2 bg-white text-black py-6 rounded-[28px] font-bold text-xl hover:bg-cyan-400 hover:text-white active:scale-95 transition-all mt-6 shadow-[0_0_50px_rgba(255,255,255,0.1)] uppercase tracking-[0.2em]">
                     Pulse To Inventory
                   </button>
                 </form>
               </div>
-            </motion.div>
+            </GlowCard>
           </div>
         )}
       </AnimatePresence>
     </div>
   );
 };
+
+const X = ({ className }: { className?: string }) => (
+    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+);

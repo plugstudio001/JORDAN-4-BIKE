@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GlassCard } from './GlassCard';
+import { GlowCard } from './GlowCard';
 import { 
   Search, 
   ShoppingCart, 
@@ -9,9 +9,9 @@ import {
   CreditCard, 
   Wallet, 
   Banknote,
-  Receipt,
   ScanLine,
-  Zap
+  Zap,
+  ShoppingBag
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
@@ -62,7 +62,6 @@ export const POS: React.FC = () => {
 
   const handleCheckout = async (method: string) => {
     try {
-      // Create transaction
       await addDoc(collection(db, "transactions"), {
         items: cart,
         totalAmount: total,
@@ -71,7 +70,6 @@ export const POS: React.FC = () => {
         timestamp: Timestamp.now().toDate().toISOString(),
       });
 
-      // Update inventory stock
       for (const item of cart) {
         const productRef = doc(db, "products", item.productId);
         await updateDoc(productRef, {
@@ -82,7 +80,6 @@ export const POS: React.FC = () => {
 
       setCart([]);
       setPaymentModal(false);
-      alert("Pulse synchronized. Transaction decrypted and finalized.");
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, "transactions");
     }
@@ -97,51 +94,56 @@ export const POS: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-180px)]">
       {/* Product Grid */}
       <div className="lg:col-span-2 space-y-6 flex flex-col">
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-cyan-400 transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search catalog or scan barcode..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all backdrop-blur-xl"
-          />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded-md text-[10px] font-bold border border-cyan-500/30 font-mono">
-            SCAN_READY
+        <GlowCard className="p-1" hoverEffect={false}>
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-cyan-400 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search catalog or scan barcode..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-transparent py-4 pl-12 pr-4 text-white focus:outline-none transition-all placeholder:text-white/10"
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 bg-cyan-500/10 text-cyan-400 rounded-md text-[10px] font-bold border border-cyan-500/20 font-mono tracking-widest">
+              SCAN_READY
+            </div>
           </div>
-        </div>
+        </GlowCard>
 
         <div className="flex-1 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 pr-2 custom-scrollbar">
           {filteredProducts.map((product) => (
-            <motion.button
+            <GlowCard
               key={product.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
               onClick={() => addToCart(product)}
-              className="bg-white/5 border border-white/10 rounded-[24px] p-4 text-left hover:bg-white/10 hover:border-cyan-500/30 transition-all group relative overflow-hidden h-fit"
+              className="p-4 group"
             >
-              <div className="w-full aspect-square rounded-xl bg-white/5 mb-4 flex items-center justify-center overflow-hidden border border-white/5 group-hover:border-white/10">
+              <div className="w-full aspect-square rounded-2xl bg-white/5 mb-4 flex items-center justify-center overflow-hidden border border-white/5 transition-colors group-hover:border-cyan-400/30">
                 {product.imageUrl ? (
-                  <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                  <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110" />
                 ) : (
-                  <ShoppingBag className="w-10 h-10 text-white/10 group-hover:text-cyan-500/20" />
+                  <ShoppingBag className="w-10 h-10 text-white/10 group-hover:text-cyan-400/20 transition-colors" />
                 )}
               </div>
-              <p className="font-bold text-sm line-clamp-1 uppercase tracking-tight">{product.name}</p>
-              <p className="text-cyan-400 font-mono text-lg mt-1 font-bold tracking-tighter">${product.price.toFixed(2)}</p>
-            </motion.button>
+              <p className="font-bold text-xs uppercase tracking-widest text-gray-400 line-clamp-1 group-hover:text-white transition-colors">{product.name}</p>
+              <p className="text-cyan-400 font-mono text-xl mt-1 font-bold tracking-tighter">${product.price.toFixed(2)}</p>
+            </GlowCard>
           ))}
         </div>
       </div>
 
       {/* Cart Panel */}
-      <GlassCard className="flex flex-col h-full !p-0 border-white/10">
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
+      <GlowCard className="flex flex-col h-full !p-0 overflow-hidden" hoverEffect={false}>
+        <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <ShoppingCart className="w-5 h-5 text-cyan-400" />
-            <h3 className="text-lg font-bold uppercase tracking-tight">Pulse Cart</h3>
+            <div className="p-2 bg-cyan-400/10 rounded-lg">
+              <ShoppingCart className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold uppercase tracking-tight">Pulse Cart</h3>
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Transaction Buffer</p>
+            </div>
           </div>
-          <span className="bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-cyan-500/20">{cart.length} NODES</span>
+          <span className="bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.2em] border border-cyan-500/20">{cart.length} NODES</span>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
@@ -153,57 +155,60 @@ export const POS: React.FC = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 key={item.productId} 
-                className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/5"
+                className="flex items-center justify-between bg-white/[0.03] p-4 rounded-2xl border border-white/5 hover:border-cyan-400/20 transition-colors"
               >
                 <div className="flex-1 min-w-0 pr-4">
-                  <p className="font-semibold text-sm truncate">{item.name}</p>
-                  <p className="text-xs text-white/40 mt-1 font-mono">${item.price.toFixed(2)} / UNIT</p>
+                  <p className="font-bold text-sm truncate uppercase tracking-tight">{item.name}</p>
+                  <p className="text-[10px] text-white/20 mt-1 font-mono uppercase tracking-widest">${item.price.toFixed(2)} / unit</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex items-center bg-black/40 rounded-xl border border-white/5">
-                    <button onClick={() => updateQuantity(item.productId, -1)} className="p-1.5 hover:text-blue-400 transition-colors"><Minus className="w-3 h-3" /></button>
-                    <span className="w-8 text-center text-sm font-mono font-bold">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.productId, 1)} className="p-1.5 hover:text-blue-400 transition-colors"><Plus className="w-3 h-3" /></button>
+                    <button onClick={() => updateQuantity(item.productId, -1)} className="p-2 hover:text-cyan-400 transition-colors"><Minus className="w-3 h-3" /></button>
+                    <span className="w-8 text-center text-xs font-mono font-bold text-cyan-400">{item.quantity}</span>
+                    <button onClick={() => updateQuantity(item.productId, 1)} className="p-2 hover:text-cyan-400 transition-colors"><Plus className="w-3 h-3" /></button>
                   </div>
-                  <button onClick={() => removeFromCart(item.productId)} className="text-white/20 hover:text-red-400 transition-colors"><X className="w-4 h-4" /></button>
+                  <button onClick={() => removeFromCart(item.productId)} className="text-white/10 hover:text-red-400 transition-colors p-1"><X className="w-4 h-4" /></button>
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
           {cart.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
+            <div className="h-full flex flex-col items-center justify-center text-center opacity-10 py-20">
               <ScanLine className="w-16 h-16 mb-4" />
-              <p className="text-lg">Cart inactive</p>
-              <p className="text-xs">Scan items to begin sequence</p>
+              <p className="text-xl font-bold uppercase tracking-widest">Cart Inactive</p>
+              <p className="text-[10px] uppercase tracking-[0.4em] mt-2 font-bold">Synchronize Node for Checkout</p>
             </div>
           )}
         </div>
 
-        <div className="p-6 bg-white/[0.02] border-t border-white/5">
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">
+        <div className="p-8 bg-white/[0.04] border-t border-white/10">
+            <div className="space-y-4 mb-8">
+              <div className="flex justify-between text-[10px] text-white/30 font-bold uppercase tracking-[0.2em]">
                 <span>Matrix Subtotal</span>
                 <span className="font-mono text-white/60">${total.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">
+              <div className="flex justify-between text-[10px] text-white/30 font-bold uppercase tracking-[0.2em]">
                 <span>Network Protocol Fee</span>
                 <span className="font-mono text-white/60">$0.00</span>
               </div>
-              <div className="flex justify-between text-2xl font-bold pt-4 border-t border-white/5">
-                <span className="text-white tracking-tighter">TOTAL_PULSE</span>
-                <span className="text-cyan-400 font-mono tracking-tighter shadow-cyan-500/20 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">${total.toFixed(2)}</span>
+              <div className="flex justify-between items-end pt-6 border-t border-white/10">
+                <div>
+                  <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.4em] block mb-1">Total_Pulse</span>
+                  <span className="text-white text-3xl font-bold tracking-tighter">EST_CHECKOUT</span>
+                </div>
+                <span className="text-cyan-400 text-4xl font-bold font-mono tracking-tighter drop-shadow-[0_0_12px_rgba(34,211,238,0.4)]">${total.toFixed(2)}</span>
               </div>
             </div>
             
             <button 
               disabled={cart.length === 0}
               onClick={() => setPaymentModal(true)}
-              className="w-full bg-white text-black py-5 rounded-[24px] font-bold text-lg hover:bg-cyan-400 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(34,211,238,0.2)] active:scale-[0.98] uppercase tracking-tight"
+              className="w-full bg-white text-black py-5 rounded-3xl font-bold text-lg hover:bg-cyan-400 hover:text-white transition-all disabled:opacity-10 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(34,211,238,0.2)] active:scale-[0.98] uppercase tracking-widest font-sans"
             >
               Initialize Node Payment
             </button>
         </div>
-      </GlassCard>
+      </GlowCard>
 
       {/* Payment Modal */}
       <AnimatePresence>
@@ -214,49 +219,44 @@ export const POS: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setPaymentModal(false)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+              className="absolute inset-0 bg-black/90 backdrop-blur-3xl"
             />
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-[40px] p-10 overflow-hidden"
-            >
-              <h3 className="text-3xl font-bold mb-2">Select Channel</h3>
-              <p className="text-white/40 mb-10">Choose a prioritized payment method for this transaction.</p>
-              
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { id: 'card', icon: CreditCard, label: 'Credit Card', color: 'blue' },
-                  { id: 'mobile', icon: Wallet, label: 'Mobile Money', color: 'purple' },
-                  { id: 'cash', icon: Banknote, label: 'Fiat Cash', color: 'green' },
-                  { id: 'crypto', icon: Zap, label: 'Stablecoin', color: 'yellow' },
-                ].map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => handleCheckout(m.id)}
-                    className="flex flex-col items-center justify-center p-8 rounded-3xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group"
-                  >
-                    <m.icon className={`w-10 h-10 mb-4 group-hover:text-${m.color}-400 transition-colors`} />
-                    <span className="font-bold">{m.label}</span>
-                  </button>
-                ))}
+            <GlowCard className="relative w-full max-w-lg p-10 border-white/10 overflow-hidden" hoverEffect={false}>
+              <div className="relative z-10">
+                <h3 className="text-3xl font-bold mb-2 tracking-tight">Select Channel</h3>
+                <p className="text-white/40 mb-10 text-sm uppercase tracking-widest font-bold">Priority Resolution Priority</p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { id: 'card', icon: CreditCard, label: 'Credit Card', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+                    { id: 'mobile', icon: Wallet, label: 'M-Pesa', color: 'text-green-400', bg: 'bg-green-400/10' },
+                    { id: 'cash', icon: Banknote, label: 'Fiat Cash', color: 'text-purple-400', bg: 'bg-purple-400/10' },
+                    { id: 'crypto', icon: Zap, label: 'Stablecoin', color: 'text-cyan-400', bg: 'bg-cyan-400/10' },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => handleCheckout(m.id)}
+                      className="flex flex-col items-center justify-center p-8 rounded-[32px] bg-white/[0.02] border border-white/5 hover:border-cyan-400/30 transition-all group active:scale-95"
+                    >
+                      <div className={`p-4 rounded-2xl ${m.bg} ${m.color} mb-4 transition-transform group-hover:scale-110`}>
+                        <m.icon className="w-8 h-8" />
+                      </div>
+                      <span className="font-bold uppercase text-[10px] tracking-widest text-gray-500 group-hover:text-white transition-colors">{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+                
+                <button 
+                  onClick={() => setPaymentModal(false)}
+                  className="w-full mt-10 py-5 rounded-2xl text-[10px] text-white/20 font-bold uppercase tracking-[0.5em] hover:text-white transition-colors border border-white/5"
+                >
+                  ABORT_SEQUENCE
+                </button>
               </div>
-              
-              <button 
-                onClick={() => setPaymentModal(false)}
-                className="w-full mt-10 py-5 rounded-2xl bg-white/5 text-white/40 font-mono text-sm hover:text-white transition-colors"
-              >
-                ABORT_SEQUENCE
-              </button>
-            </motion.div>
+            </GlowCard>
           </div>
         )}
       </AnimatePresence>
     </div>
   );
 };
-
-const ShoppingBag = ({ className }: { className?: string }) => (
-  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-);

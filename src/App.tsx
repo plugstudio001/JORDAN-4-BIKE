@@ -25,6 +25,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     testConnection();
@@ -34,6 +35,19 @@ export default function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  const handleLogin = async () => {
+    setAuthError(null);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      if (error.code === 'auth/unauthorized-domain') {
+        setAuthError(`Domain ${window.location.hostname} not authorized. Add it to Firebase Console > Auth > Settings > Authorized domains.`);
+      } else {
+        setAuthError(error.message || "Authentication failed. Initialization aborted.");
+      }
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -84,8 +98,18 @@ export default function App() {
           <h1 className="text-4xl font-bold text-white mb-4 tracking-tight">PulseGrid AI</h1>
           <p className="text-gray-400 mb-10 text-lg">Next-generation business intelligence. Synchronize your enterprise matrix.</p>
           
+          {authError && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-xs font-bold uppercase tracking-tight leading-relaxed"
+            >
+              ⚠️ AUTH_FAILURE: {authError}
+            </motion.div>
+          )}
+
           <button
-            onClick={signInWithGoogle}
+            onClick={handleLogin}
             className="w-full bg-white text-black py-4 px-6 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-cyan-400 hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl"
           >
             <LogIn className="w-5 h-5" />

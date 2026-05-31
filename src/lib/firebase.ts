@@ -61,6 +61,10 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
+    if (error instanceof Error && (error as any).code === 'auth/unauthorized-domain') {
+      const currentUrl = window.location.hostname;
+      console.error(`Login failed: The domain "${currentUrl}" is not authorized in your Firebase Console. Please add "${currentUrl}" and any europe-west2.run.app domains to the authorized domains in Firebase Auth settings.`);
+    }
     console.error("Login failed:", error);
     throw error;
   }
